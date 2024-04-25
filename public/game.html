@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <link rel="stylesheet" href="assets/css/game.css">
+</head>
+<body>
+    <div class="container">
+        <p id="jugador1"></p>
+        <div id="tablero" class="tablero">
+            <!-- Aquí se mostrará el tablero del juego del tres en raya -->
+            <div class="celda" id="celda0"></div>
+            <div class="celda" id="celda1"></div>
+            <div class="celda" id="celda2"></div>
+            <div class="celda" id="celda3"></div>
+            <div class="celda" id="celda4"></div>
+            <div class="celda" id="celda5"></div>
+            <div class="celda" id="celda6"></div>
+            <div class="celda" id="celda7"></div>
+            <div class="celda" id="celda8"></div>
+        </div>
+        <p id="jugador2"></p>
+        <div id="chat" class="chat">
+            <div id="mensajes" class="mensajes"></div>
+            <input type="text" id="mensajeInput" class="mensajeInput" placeholder="Escribe un mensaje...">
+            <button onclick="enviarMensaje()" class="enviarMensajeBtn">Enviar</button>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="assets/js/game.js"></script>
+</body>
+</html>

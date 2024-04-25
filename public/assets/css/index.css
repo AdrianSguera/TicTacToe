@@ -1,0 +1,19 @@
+.index-container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: space-around;
+    align-items: center;
+}
+
+.index-container img{
+    width: 200px;
+    height: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.index-container input{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
