@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "webpack --config webpack.config.js"
+    "build": "node build.js"
   },
   "author": "Adrian Sguera",
   "license": "ISC",
@@ -14,10 +14,6 @@
     "express": "^4.19.2",
     "lodash": "^4.17.21",
     "mysql": "^2.18.1",
-    "socket.io": "^4.7.5",
-    "webpack": "^5.0.0"
-  },
-  "devDependencies": {
-    "webpack-cli": "^4.0.0"
+    "socket.io": "^4.7.5"
   }
 }
