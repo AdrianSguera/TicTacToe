@@ -1,99 +1,135 @@
 const express = require('express');
 const http = require('http');
-const socketIO = require('socket.io');
+const socketIo = require('socket.io');
+const { random } = require('lodash');
+
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIo(server);
 
-let jugadoresEnEspera = [];
+let playersWaiting = [];
+let playerBoards = {};
+let currentTurn = {};
 
-const mysql = require('mysql');
+app.use(express.static('public'));
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'chatroom_node',
-    insecureAuth: true
-});
+function findAndMatchPlayers() {
+    if (playersWaiting.length >= 2) {
+        const player1 = playersWaiting.shift();
+        const player2 = playersWaiting.shift();
 
-app.use(express.static(__dirname + '/public'));
+        const randomKey1 = random(0, 1) === 0 ? 'X' : 'O';
+        const randomKey2 = randomKey1 === 'X' ? 'O' : 'X';
 
-connection.connect((err) => {
-    if (err) {
-        console.error('Error al conectar a la base de datos:', err);
-        return;
+        console.log('El primero tiene' + randomKey1)
+        console.log('El segundo tiene' + randomKey2)
+
+        playerBoards[player1.id] = { board: Array(9).fill(null), opponent: player2.id, player: randomKey1 };
+        playerBoards[player2.id] = { board: Array(9).fill(null), opponent: player1.id, player: randomKey2 };
+
+        if(randomKey1 === 'X'){
+            currentTurn[player1.id + player2.id] = 'X';
+        } else {
+            currentTurn[player2.id + player1.id] = 'X';
+        }
+
+        io.to(player1.id).emit('matchFound', { opponent: player2.username, player: randomKey1, icon: randomKey2 });
+        io.to(player2.id).emit('matchFound', { opponent: player1.username, player: randomKey2, icon: randomKey1 });
+
+        console.log(`Partida iniciada para jugadores ${player1.username} (X) y ${player2.username} (O).`);
     }
-    console.log('Conexión a la base de datos establecida');
-});
+}
+
+function checkWinner(board) {
+    const winConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+
+    for (let condition of winConditions) {
+        const [a, b, c] = condition;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return condition;
+        }
+    }
+    return null;
+}
+
+function checkDraw(board) {
+    return board.every(cell => cell !== null);
+}
 
 io.on('connection', (socket) => {
-    console.log('Usuario conectado');
-
-    socket.on('mensaje', (mensaje) => {
-        console.log('Mensaje recibido:', mensaje);
-        io.emit('mensaje', mensaje);
-    });
-
-    socket.on('buscarPartida', (username) => {
-        const jugadorActual = { id: socket.id, username: username };
-        const index = jugadoresEnEspera.findIndex(jugador => jugador.id === jugadorActual.id);
-        
-        if (index === -1) {
-            jugadoresEnEspera.push(jugadorActual);
-            console.log('Cantidad de jugadores en espera: ', jugadoresEnEspera.length);
-            console.log('Jugadores en espera: ', jugadoresEnEspera);
-            console.log(`Jugador ${jugadorActual.username} en espera.`);
-        } else {
-            console.log(`Jugador ${jugadorActual.username} ya está en espera.`);
-        }
-    
-        if (jugadoresEnEspera.length < 2) {
-            console.log("Esperando a más jugadores...");
-            return;
-        }
-    
-        const jugador1 = jugadoresEnEspera.shift();
-        const jugador2 = jugadoresEnEspera.shift();
-    
-        console.log(`Emparejando jugadores ${jugador1.username} y ${jugador2.username}.`);
-    
-        io.to(jugador1.id).emit('jugadoresEmparejados', { jugador1: jugador1.username, jugador2: jugador2.username });
-        io.to(jugador2.id).emit('jugadoresEmparejados', { jugador1: jugador1.username, jugador2: jugador2.username });
-    
-        console.log(`Partida iniciada para jugadores ${jugador1.username} y ${jugador2.username}.`);
-    });
-
-    socket.on('resultado', (socketId) => {
-        io.to(socketId).emit('finPartida', 'ganaste');
-        socket.broadcast.emit('finPartida', 'perdiste');
-    })
-
-    socket.on('resultadoEmpate', () => {
-        io.emit('finPartida', 'empate');
-    })
-
-    let socketIdEnviado;
-    socket.on('movimiento', (datos) => {
-        if (!socketIdEnviado) {
-            socketIdEnviado = socket.id;
-        }
-        console.log('Movimiento recibido del cliente:', JSON.parse(datos));
-        socket.broadcast.emit('movimiento', JSON.parse(datos));
-    });
+    console.log('Nuevo cliente conectado:', socket.id);
 
     socket.on('disconnect', () => {
-        console.log('Usuario desconectado');
-        const index = jugadoresEnEspera.indexOf(socket.id);
-        if (index !== -1) {
-            jugadoresEnEspera.splice(index, 1);
-            console.log(`Usuario ${socket.id} desconectado. Jugador eliminado de la lista de espera.`);
+        console.log('Cliente desconectado:', socket.id);
+        playersWaiting = playersWaiting.filter(player => player.id !== socket.id);
+        delete playerBoards[socket.id];
+    });
+
+    socket.on('searchForMatch', (username) => {
+        const player = { id: socket.id, username: username };
+
+        const index = playersWaiting.findIndex(player => player.id === socket.id);
+        if (index === -1) {
+            playersWaiting.push(player);
+            console.log(`Jugador ${player.username} en espera.`);
+        } else {
+            console.log(`Jugador ${player.username} ya está en espera.`);
+        }
+
+        findAndMatchPlayers();
+    });
+
+    socket.on('move', (index) => {
+        const board = playerBoards[socket.id].board;
+        const opponent = playerBoards[socket.id].opponent;
+        const opponentBoard = playerBoards[opponent].board;
+        const currentPlayer = playerBoards[socket.id].player;
+        let currentTurnKey;
+
+        if(currentTurn[socket.id + opponent] === 'X'){
+            currentTurnKey = socket.id + opponent;
+        } else {
+            currentTurnKey = opponent + socket.id;
+        }
+    
+        if (currentPlayer === currentTurn[currentTurnKey] && board[index] === null) {
+            board[index] = currentPlayer;
+            opponentBoard[index] = currentPlayer;
+    
+            const winner = checkWinner(board);
+            const draw = checkDraw(board);
+    
+            io.to(socket.id).emit('updateCell', { index, value: currentPlayer });
+            io.to(opponent).emit('updateCell', { index, value: currentPlayer });
+    
+            if (winner || draw) {
+                if (winner) {
+                    let winnerCells = winner;
+                    io.to(socket.id).emit('gameOver', { result: 'win', winnerCells: winnerCells });
+                    io.to(opponent).emit('gameOver', { result: 'lose', winnerCells: winnerCells });
+                } else {
+                    io.to(socket.id).emit('gameOver', { result: 'draw' });
+                    io.to(opponent).emit('gameOver', { result: 'draw' });
+                }
+                delete playerBoards[socket.id];
+                delete playerBoards[opponent];
+            } else {
+                currentTurn[currentTurnKey] = currentPlayer === 'X' ? 'O' : 'X';
+            }
         }
     });
+
+    socket.on('mensaje', (mensaje) => {
+        io.emit('mensaje', mensaje);
+    })
 });
 
-const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Servidor en ejecución en http://localhost:${PORT}`);
+    console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

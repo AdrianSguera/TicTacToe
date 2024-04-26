@@ -9,14 +9,37 @@
 </head>
 
 <body>
-    <div class="index-container">
+    <div class="index-container" id="index-container">
         <h5>Escribe tu nombre</h5>
         <input type="text" id="username">
-        <button onclick="buscarPartida()" id="buscarPartida">Buscar Partida</button>
+        <p id="errorMsg"></p>
+        <button onclick="searchForMatch()" id="searchForMatch">Buscar Partida</button>
         <img src="assets/img/loading.gif" alt="loading" id="loading-image" style="display: none;">
         <p id="mensajeBuscando" style="display: none;">Buscando partida...</p>
     </div>
 
+    <div class="container" id="container" style="display: none;">
+        <p id="jugador1"></p>
+        <div id="board" class="board">
+            <div class="cell" id="cell-0" onclick="handleCellClick(0)"></div>
+            <div class="cell" id="cell-1" onclick="handleCellClick(1)"></div>
+            <div class="cell" id="cell-2" onclick="handleCellClick(2)"></div>
+            <div class="cell" id="cell-3" onclick="handleCellClick(3)"></div>
+            <div class="cell" id="cell-4" onclick="handleCellClick(4)"></div>
+            <div class="cell" id="cell-5" onclick="handleCellClick(5)"></div>
+            <div class="cell" id="cell-6" onclick="handleCellClick(6)"></div>
+            <div class="cell" id="cell-7" onclick="handleCellClick(7)"></div>
+            <div class="cell" id="cell-8" onclick="handleCellClick(8)"></div>
+        </div>
+        <p id="jugador2"></p>
+        <h4 id="gameover" style="display: none;"></h4>
+        <a href="/" id="return-btn" style="display: none;"><button>Volver</button></a>
+        <div id="chat" class="chat">
+            <div id="mensajes" class="mensajes"></div>
+            <input type="text" id="mensajeInput" class="mensajeInput" placeholder="Escribe un mensaje...">
+            <button onclick="enviarMensaje()" class="enviarMensajeBtn">Enviar</button>
+        </div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="assets/js/game.js"></script>
 </body>

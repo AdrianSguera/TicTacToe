@@ -4,6 +4,12 @@
     flex-wrap: wrap;
     align-content: space-around;
     align-items: center;
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .index-container img{
@@ -16,4 +22,168 @@
 .index-container input{
     margin-top: 20px;
     margin-bottom: 20px;
+}
+
+.board {
+    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+  }
+  
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #333;
+    font-size: 24px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  #cell-0, #cell-1, #cell-2{
+    border-top: none;
+  }
+
+  #cell-0, #cell-3, #cell-6{
+    border-left: none;
+  }
+
+  #cell-6, #cell-7, #cell-8{
+    border-bottom: none;
+  }
+
+  #cell-2, #cell-5, #cell-8{
+    border-right: none;
+  }
+  
+  .cell:hover {
+    background-color: #f0f0f0;
+  }
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.index-container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+#index-container h5 {
+    margin-bottom: 10px;
+}
+
+#index-container input[type="text"] {
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#index-container button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#index-container button:hover {
+    background-color: #0056b3;
+}
+
+#loading-image {
+    display: block;
+    margin: 20px auto;
+}
+
+#mensajeBuscando {
+    display: none;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.container p {
+    margin-bottom: 10px;
+}
+
+.container h4, #errorMsg {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #ff6347;
+}
+
+#return-btn {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#return-btn button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#return-btn button:hover {
+    background-color: #0056b3;
+}
+
+.chat {
+    margin-top: 20px;
+}
+
+.mensajes {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.mensajeInput {
+    width: calc(100% - 70px);
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.enviarMensajeBtn {
+    width: 60px;
+    padding: 8px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.enviarMensajeBtn:hover {
+    background-color: #0056b3;
+}
+
+.winner-cell{
+    background-color:greenyellow;
+}
+
+.looser-cell{
+    background-color:orangered;
 }
