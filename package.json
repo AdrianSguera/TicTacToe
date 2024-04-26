@@ -15,6 +15,9 @@
     "lodash": "^4.17.21",
     "mysql": "^2.18.1",
     "socket.io": "^4.7.5",
-    "webpack-cli": "^4.9.1"
+    "webpack": "^5.0.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.0.0"
   }
 }
