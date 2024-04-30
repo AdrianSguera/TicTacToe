@@ -2,14 +2,18 @@ const socket = io();
 
 socket.on('mensaje', (mensaje) => {
     const mensajesDiv = document.getElementById('mensajes');
-    mensajesDiv.innerHTML += `<p>${mensaje}</p>`;
+    const mensajeInput = document.getElementById('mensajeInput');
+    if (mensaje === mensajeInput.value) {
+        mensajesDiv.innerHTML += `<p class="mensaje-propio">${mensaje}</p>`;
+    } else {
+        mensajesDiv.innerHTML += `<p class="mensaje-externo">${mensaje}</p>`;
+    }
+    mensajeInput.value = '';
 });
 
 function enviarMensaje() {
-    const mensajeInput = document.getElementById('mensajeInput');
-    const mensaje = mensajeInput.value;
+    const mensaje = document.getElementById('mensajeInput').value;
     socket.emit('mensaje', mensaje);
-    mensajeInput.value = '';
 }
 
 socket.on('matchFound', (data) => {
